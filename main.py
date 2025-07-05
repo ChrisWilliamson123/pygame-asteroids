@@ -4,13 +4,15 @@ from settings.asteroids_settings import AsteroidsSettings
 
 from state.state_type import StateType
 from state.main_menu_state import MainMenuState
+from state.play_state import PlayState
 import state.state_transition_manager as state_transition_manager
 
 from gameutils.game_manager import GameManager
 
 def states_builder(game_manager):
     return {
-        StateType.MAIN_MENU: MainMenuState(game_manager)
+        StateType.MAIN_MENU: MainMenuState(game_manager),
+        StateType.PLAY: PlayState(game_manager)
     }
 
 if __name__ == '__main__':

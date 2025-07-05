@@ -2,7 +2,7 @@ from enum import Enum
 
 class StateType(Enum):
     MAIN_MENU = 'main_menu'
-    # GAME = 'game'
+    PLAY = 'play'
     # PAUSE = 'pause'
     # GAME_OVER = 'game_over'
     # SETTINGS = 'settings'
