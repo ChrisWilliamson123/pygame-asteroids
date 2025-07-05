@@ -9,7 +9,7 @@ import pygame
 class Ship:
     def __init__(self, x, y):
         self.pos = pygame.Vector2(x, y)
-        self.size = 20
+        self.size = 50
         self.rect = pygame.Rect(x, y, self.size, self.size)
         self.heading = 0
         self.rotation_speed = 150
@@ -45,13 +45,13 @@ class Ship:
         new_y = (self.pos.y + (vector.y * dt))
 
         # Move the ship back into play if it's fully off screen
-        if self.pos.x > SCREEN_WIDTH and self.pos.x - SCREEN_WIDTH >= self.size:
+        if new_x > SCREEN_WIDTH and new_x - SCREEN_WIDTH >= self.size:
             new_x = 0
-        if self.pos.x <= -self.size:
+        if new_x <= -self.size:
             new_x = SCREEN_WIDTH - self.size
-        if self.pos.y > SCREEN_HEIGHT and self.pos.y - SCREEN_HEIGHT >= self.size:
+        if new_y > SCREEN_HEIGHT and new_y - SCREEN_HEIGHT >= self.size:
             new_y = 0
-        if self.pos.y <= -self.size:
+        if new_y <= -self.size:
             new_y = SCREEN_HEIGHT - self.size
 
         self.pos.x = new_x
@@ -60,18 +60,6 @@ class Ship:
         # Sync rect to updated float position
         self.rect.y = round(self.pos.y)
         self.rect.x = round(self.pos.x)
-
-    def draw_overflow(self, surface):
-        should_overflow_x = abs(self.rect.x - SCREEN_WIDTH) < self.size
-        should_overflow_y = abs(self.rect.y - SCREEN_HEIGHT) < self.size
-
-        center = (
-            ((self.rect.x - SCREEN_WIDTH) if should_overflow_x else self.rect.x) + (self.size // 2),
-            ((self.rect.y - SCREEN_HEIGHT) if should_overflow_y else self.rect.y)  + (self.size // 2),
-        )
-        
-        pygame.draw.polygon(surface, 'white', self.calculate_vertices(center))
-            
 
     def draw(self, surface):
         pygame.draw.polygon(surface, 'white', self.calculate_vertices(self.rect.center))
