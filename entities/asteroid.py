@@ -18,7 +18,9 @@ class Asteroid(pygame.sprite.Sprite):
         self.size = self.image.get_width() # asteroids are square
         self.rect = pygame.Rect(x, y, self.image.get_width(), self.image.get_height())
         self.velocity = velocity
-        self.rotation_speed = 150 # TODO: rotate the asteroid
+        self.rotation_angle = random.randint(0, 360)
+        self.rotation_direction = random.choice([1, -1])
+        self.rotation_speed = random.randint(100, 500)
 
     def move(self, dt):
         new_x = (self.pos.x + (self.velocity.x * dt))
@@ -36,6 +38,11 @@ class Asteroid(pygame.sprite.Sprite):
 
         self.pos.x = new_x
         self.pos.y = new_y
-        # Sync rect to updated float position
-        self.rect.y = round(self.pos.y)
-        self.rect.x = round(self.pos.x)
+
+        # Rotate it
+        self._rotate(dt)
+
+    def _rotate(self, dt):
+        self.rotation_angle += (self.rotation_speed * dt * self.rotation_direction)
+        self.image = pygame.transform.rotate(self.original_image, self.rotation_angle)
+        self.rect = self.image.get_rect(center=self.pos)
