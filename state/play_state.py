@@ -23,6 +23,9 @@ class PlayState(State):
         ship_sprite_surface = self.sprite_surfaces[AsteroidSpriteName.SHIP]
         self.ship_rotated_top = pygame.transform.rotate(ship_sprite_surface, 90)
 
+        ship_thrusted_sprite_surface = self.sprite_surfaces[AsteroidSpriteName.SHIP_THRUSTED]
+        self.ship_thrusted_rotated_top = pygame.transform.rotate(ship_thrusted_sprite_surface, 90)
+
         # Initial state setup
         self.reset()
 
@@ -35,6 +38,8 @@ class PlayState(State):
             self.ship.rotate(1, dt)
         if keys[pygame.K_UP]:
             self.ship.thrust(dt)
+        else:
+            self.ship.stop_thrust()
 
         # Move asteroids
         for asteroid in self.asteroids_group:
@@ -88,7 +93,7 @@ class PlayState(State):
         self.build_ship_group()
 
     def build_ship_group(self):
-        self.ship = Ship(self.ship_rotated_top, (SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
+        self.ship = Ship(self.ship_rotated_top, self.ship_thrusted_rotated_top, (SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
         self.ship_group = pygame.sprite.Group()
         self.ship_group.add(self.ship)
 

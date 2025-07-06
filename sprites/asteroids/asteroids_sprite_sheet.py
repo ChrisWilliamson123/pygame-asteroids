@@ -10,6 +10,7 @@ class AsteroidsSpriteSheet(SpriteSheet):
             Sprite(AsteroidSpriteName.LARGE_1, (0, 0), (160, 160)),
             Sprite(AsteroidSpriteName.LARGE_2, (160, 0), (160, 160)),
             Sprite(AsteroidSpriteName.LARGE_3, (320, 0), (160, 160)),
-            Sprite(AsteroidSpriteName.SHIP, (192, 256), (96, 64))
+            Sprite(AsteroidSpriteName.SHIP, (192, 256), (96, 64)),
+            Sprite(AsteroidSpriteName.SHIP_THRUSTED, (288, 256), (96, 64))
         ]
         super().__init__(file, sprites)

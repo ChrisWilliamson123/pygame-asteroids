@@ -5,3 +5,4 @@ class AsteroidSpriteName(Enum):
     LARGE_2 = 'large_2'
     LARGE_3 = 'large_3'
     SHIP = 'ship'
+    SHIP_THRUSTED = 'ship_thrusted'

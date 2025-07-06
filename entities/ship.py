@@ -6,26 +6,30 @@ from helpers.vectors import angle_to_vector
 import pygame
 
 class Ship(pygame.sprite.Sprite):
-    def __init__(self, image, center_x, center_y):
+    def __init__(self, unthrusted_image, thrusted_image, center_x, center_y):
         super().__init__()
 
-        self.original_image = image  # Unrotated source image
-        self.image = image
+        self.original_unthrusted_image = unthrusted_image  # Unrotated source image
+        self.original_thrusted_image = thrusted_image  # Unrotated source image
+        self.image = unthrusted_image
 
         self.pos = pygame.Vector2(center_x, center_y)
         self.rect = self.image.get_rect(center=self.pos)
         self.heading = 0
         self.rotation_speed = 150
         self.speed = 300
+        self.thrusting = False
     
     def rotate(self, direction, dt):
         self.heading += direction * self.rotation_speed * dt
 
-        # Sync image and rect to updated float position
-        self.image = pygame.transform.rotate(self.original_image, -self.heading)
-        self.rect = self.image.get_rect(center=self.pos)
+        self.sync_image_and_rect()
 
     def thrust(self, dt):
+        if not self.thrusting:
+            self.thrusting = True
+            self.change_image(self.original_thrusted_image)
+
         vector = angle_to_vector(self.heading, self.speed)
         new_x = (self.pos.x + (vector.x * dt))
         new_left = new_x - self.half_width
@@ -46,8 +50,12 @@ class Ship(pygame.sprite.Sprite):
         self.pos.y = new_y
 
         # Sync image and rect to updated float position
-        self.image = pygame.transform.rotate(self.original_image, -self.heading)
-        self.rect = self.image.get_rect(center=self.pos)
+        self.sync_image_and_rect()
+
+    def stop_thrust(self):
+        if self.thrusting:
+            self.thrusting = False
+            self.change_image(self.original_unthrusted_image)
 
     @property
     def half_width(self):
@@ -56,3 +64,11 @@ class Ship(pygame.sprite.Sprite):
     @property
     def half_height(self):
         return self.rect.width // 2
+    
+    def change_image(self, image):
+        self.image = pygame.transform.rotate(image, -self.heading)
+        self.rect = self.image.get_rect(center=self.pos)  
+    
+    def sync_image_and_rect(self):
+        self.image = pygame.transform.rotate(self.original_thrusted_image if self.thrusting else self.original_unthrusted_image, -self.heading)
+        self.rect = self.image.get_rect(center=self.pos) 
