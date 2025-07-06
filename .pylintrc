@@ -41,7 +41,10 @@ disable =
     fixme,
     
     # Sometimes needed for compatibility
-    consider-using-f-string
+    consider-using-f-string,
+
+    # Custom
+    attribute-defined-outside-init
 
 [FORMAT]
 # Maximum number of characters on a single line

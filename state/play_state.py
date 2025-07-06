@@ -1,17 +1,15 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from enum import Enum
-from constants.constants import SCREEN_HEIGHT, SCREEN_WIDTH
-from entities.ship import Ship
-from entities.asteroid import Asteroid
-from state.state_type import StateType
+import random
+import pygame
 
 from gameutils.sprites.sprite import Sprite
 from gameutils.sprites.sprite_sheet import SpriteSheet
 from gameutils.state.state import State
 
-import random
-import pygame
+from constants.constants import SCREEN_HEIGHT, SCREEN_WIDTH
+from entities.ship import Ship
+from entities.asteroid import Asteroid
+from state.state_type import StateType
 
 class AsteroidSpriteName(Enum):
     LARGE_1 = 'large_1'
