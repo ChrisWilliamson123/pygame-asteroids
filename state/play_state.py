@@ -1,33 +1,17 @@
-from enum import Enum
 import random
 import pygame
 
-from gameutils.sprites.sprite import Sprite
-from gameutils.sprites.sprite_sheet import SpriteSheet
 from gameutils.state.state import State
 
 from constants.constants import SCREEN_HEIGHT, SCREEN_WIDTH
+
 from entities.ship import Ship
 from entities.asteroid import Asteroid
+
+from sprites.asteroids.asteroid_sprite_name import AsteroidSpriteName
+from sprites.asteroids.asteroids_sprite_sheet import AsteroidsSpriteSheet
+
 from state.state_type import StateType
-
-class AsteroidSpriteName(Enum):
-    LARGE_1 = 'large_1'
-    LARGE_2 = 'large_2'
-    LARGE_3 = 'large_3'
-    SHIP = 'ship'
-
-class AsteroidsSpriteSheet(SpriteSheet):
-    def __init__(self):
-        file = 'assets/asteroids-2x.png'
-        sprites = [
-            Sprite(AsteroidSpriteName.LARGE_1, (0, 0), (160, 160)),
-            Sprite(AsteroidSpriteName.LARGE_2, (160, 0), (160, 160)),
-            Sprite(AsteroidSpriteName.LARGE_3, (320, 0), (160, 160)),
-            Sprite(AsteroidSpriteName.SHIP, (192, 256), (96, 64))
-        ]
-        super().__init__(file, sprites)
-
 
 class PlayState(State):
     def __init__(self, game_manager):
@@ -75,6 +59,7 @@ class PlayState(State):
     def spawn_asteroid(self):
         edge = random.choice(['top', 'bottom', 'left', 'right'])
 
+        x, y = 0
         if edge == 'top':
             x = random.uniform(0, SCREEN_WIDTH)
             y = -50
@@ -89,7 +74,7 @@ class PlayState(State):
             y = random.uniform(0, SCREEN_HEIGHT)
 
         # Aim toward center (with slight randomness)
-        center = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        center = pygame.Vector2(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         direction = pygame.Vector2(center.x - x, center.y - y).normalize()
         direction.rotate_ip(random.uniform(-20, 20))  # Add randomness
         speed = random.uniform(100, 300)
@@ -97,7 +82,7 @@ class PlayState(State):
         print(x, y)
         choice = random.choice([AsteroidSpriteName.LARGE_1, AsteroidSpriteName.LARGE_2, AsteroidSpriteName.LARGE_3])
         return Asteroid(self.sprite_surfaces[choice], x, y, velocity)
-    
+
     def reset(self):
         self.time_since_last_asteroid = 0
         self.build_asteroids_group()
@@ -111,4 +96,3 @@ class PlayState(State):
     def build_asteroids_group(self):
         self.asteroids_group = pygame.sprite.Group()
         self.asteroids_group.add(self.spawn_asteroid())
-
