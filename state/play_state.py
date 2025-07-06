@@ -4,39 +4,20 @@ from enum import Enum
 from constants.constants import SCREEN_HEIGHT, SCREEN_WIDTH
 from entities.ship import Ship
 from entities.asteroid import Asteroid
+from state.state_type import StateType
 
+from gameutils.sprites.sprite import Sprite
+from gameutils.sprites.sprite_sheet import SpriteSheet
 from gameutils.state.state import State
 
 import random
 import pygame
 
-@dataclass
-class Sprite:
-    name: str
-    pos: tuple[int, int]
-    size: tuple[int, int]
-
-class SpriteSheet:
-    def __init__(self, file, sprites):
-        self.sprite_sheet_image = pygame.image.load(file).convert_alpha()
-        self.sprites = sprites
-
-    def get_sprites(self):
-        sprites = {}
-        for sprite in self.sprites:
-            sprites[sprite.name] = self._get_sprite_surface(sprite)
-        return sprites
-
-    def _get_sprite_surface(self, sprite):
-        """Extracts a single sprite from the sheet image."""
-        sprite_surface = pygame.Surface(sprite.size, pygame.SRCALPHA)  # transparent background
-        sprite_surface.blit(self.sprite_sheet_image, (0, 0), pygame.Rect(sprite.pos, sprite.size))
-        return sprite_surface
-
 class AsteroidSpriteName(Enum):
     LARGE_1 = 'large_1'
     LARGE_2 = 'large_2'
     LARGE_3 = 'large_3'
+    SHIP = 'ship'
 
 class AsteroidsSpriteSheet(SpriteSheet):
     def __init__(self):
@@ -45,6 +26,7 @@ class AsteroidsSpriteSheet(SpriteSheet):
             Sprite(AsteroidSpriteName.LARGE_1, (0, 0), (160, 160)),
             Sprite(AsteroidSpriteName.LARGE_2, (160, 0), (160, 160)),
             Sprite(AsteroidSpriteName.LARGE_3, (320, 0), (160, 160)),
+            Sprite(AsteroidSpriteName.SHIP, (192, 256), (96, 64))
         ]
         super().__init__(file, sprites)
 
@@ -53,13 +35,44 @@ class PlayState(State):
     def __init__(self, game_manager):
         super().__init__(game_manager)
 
-        self.ship = Ship((SCREEN_WIDTH // 2) - 10, (SCREEN_HEIGHT // 2) - 10)
-        self.time_since_last_asteroid = 0
-        self.asteroid_spawn_interval = 1
+        self.asteroid_spawn_interval = 5
         sprite_sheet = AsteroidsSpriteSheet()
         self.sprite_surfaces = sprite_sheet.get_sprites()
-        self.asteroids = pygame.sprite.Group()
-        self.asteroids.add(self.spawn_asteroid())
+        ship_sprite_surface = self.sprite_surfaces[AsteroidSpriteName.SHIP]
+        self.ship_rotated_top = pygame.transform.rotate(ship_sprite_surface, 90)
+
+        # Initial state setup
+        self.reset()
+
+    def update(self, dt):
+        keys = pygame.key.get_pressed()
+        # Ship rotation
+        if keys[pygame.K_LEFT]:
+            self.ship.rotate(-1, dt)
+        if keys[pygame.K_RIGHT]:
+            self.ship.rotate(1, dt)
+        if keys[pygame.K_UP]:
+            self.ship.thrust(dt)
+
+        # Move asteroids
+        for asteroid in self.asteroids_group:
+            asteroid.move(dt)
+
+        # Spawn new asteroid
+        self.time_since_last_asteroid += dt
+        if len(self.asteroids_group) < 5 and self.time_since_last_asteroid >= self.asteroid_spawn_interval:
+            self.asteroids_group.add(self.spawn_asteroid())
+            self.time_since_last_asteroid = 0
+
+        if pygame.sprite.spritecollide(self.ship, self.asteroids_group, False):
+            if pygame.sprite.spritecollide(self.ship, self.asteroids_group, False, pygame.sprite.collide_mask):
+                self.game_manager.change_state(StateType.MAIN_MENU)
+
+    def render(self):
+        self.screen.fill('black')
+
+        self.ship_group.draw(self.screen)
+        self.asteroids_group.draw(self.screen)
 
     def spawn_asteroid(self):
         edge = random.choice(['top', 'bottom', 'left', 'right'])
@@ -86,43 +99,18 @@ class PlayState(State):
         print(x, y)
         choice = random.choice([AsteroidSpriteName.LARGE_1, AsteroidSpriteName.LARGE_2, AsteroidSpriteName.LARGE_3])
         return Asteroid(self.sprite_surfaces[choice], x, y, velocity)
+    
+    def reset(self):
+        self.time_since_last_asteroid = 0
+        self.build_asteroids_group()
+        self.build_ship_group()
 
-    def update(self, dt):
-        keys = pygame.key.get_pressed()
-        # Ship rotation
-        if keys[pygame.K_LEFT]:
-            self.ship.rotate(-1, dt)
-        if keys[pygame.K_RIGHT]:
-            self.ship.rotate(1, dt)
-        if keys[pygame.K_UP]:
-            self.ship.thrust(dt)
+    def build_ship_group(self):
+        self.ship = Ship(self.ship_rotated_top, (SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
+        self.ship_group = pygame.sprite.Group()
+        self.ship_group.add(self.ship)
 
-        # Move asteroids
-        for asteroid in self.asteroids:
-            asteroid.move(dt)
+    def build_asteroids_group(self):
+        self.asteroids_group = pygame.sprite.Group()
+        self.asteroids_group.add(self.spawn_asteroid())
 
-        # Spawn new asteroid
-        self.time_since_last_asteroid += dt
-        if self.time_since_last_asteroid >= self.asteroid_spawn_interval:
-            self.asteroids.add(self.spawn_asteroid())
-            self.time_since_last_asteroid = 0
-
-        # Check for asteroid collisions
-        # new_asteroids = set()
-        # for asteroid in self.asteroids:
-        #     if self.ship.rect.colliderect(asteroid.rect):
-        #         continue
-        #     new_asteroids.add(asteroid)
-        # self.asteroids = new_asteroids
-
-    def render(self):
-        self.screen.fill('black')
-
-        self.ship.draw(self.screen)
-        # for asteroid in self.asteroids:
-        #     asteroid.draw(self.screen)
-
-        self.asteroids.draw(self.screen)
-
-        for sprite in self.asteroids.sprites():
-            pygame.draw.rect(self.screen, 'red', sprite.rect, 1)

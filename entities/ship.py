@@ -3,64 +3,55 @@ from constants.constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from helpers.rotation import rotate
 from helpers.vectors import angle_to_vector
 
-import math
 import pygame
 
-class Ship:
-    def __init__(self, x, y):
-        self.pos = pygame.Vector2(x, y)
-        self.size = 50
-        self.rect = pygame.Rect(x, y, self.size, self.size)
+class Ship(pygame.sprite.Sprite):
+    def __init__(self, image, center_x, center_y):
+        super().__init__()
+        self.original_image = image  # Unrotated source image
+        self.image = image
         self.heading = 0
+        # self.size = (image.get_width(), image.get_height())
+        self.pos = pygame.Vector2(center_x, center_y)
+        self.rect = self.image.get_rect(center=self.pos)
         self.rotation_speed = 150
-
-    def calculate_vertices(self, center):
-        vertices = []
-        top = (center[0], center[1] - (self.size // 2))
-        top = rotate(center, top, self.heading)
-        vertices.append(top)
-        top = rotate(center, top, 120)
-        vertices.append(top)
-        top = rotate(center, top, 60)
-        vertices.append(top)
-        top = rotate(center, top, 60)
-        vertices.append(top)
-        return vertices
-    
-    def calculate_bounding_vertices(self):
-        return [
-            (self.pos.x, self.pos.y),
-            (self.pos.x + self.size, self.pos.y),
-            (self.pos.x + self.size, self.pos.y + self.size),
-            (self.pos.x, self.pos.y + self.size),
-        ]
     
     def rotate(self, direction, dt):
         self.heading += direction * self.rotation_speed * dt
+
+        # Sync image and rect to updated float position
+        self.image = pygame.transform.rotate(self.original_image, -self.heading)
+        self.rect = self.image.get_rect(center=self.pos)
 
     def thrust(self, dt):
         speed = 200
         vector = angle_to_vector(self.heading, speed)
         new_x = (self.pos.x + (vector.x * dt))
+        new_left = new_x - self.half_width
         new_y = (self.pos.y + (vector.y * dt))
+        new_top = new_y - self.half_height
 
         # Move the ship back into play if it's fully off screen
-        if new_x > SCREEN_WIDTH and new_x - SCREEN_WIDTH >= self.size:
-            new_x = 0
-        if new_x <= -self.size:
-            new_x = SCREEN_WIDTH - self.size
-        if new_y > SCREEN_HEIGHT and new_y - SCREEN_HEIGHT >= self.size:
-            new_y = 0
-        if new_y <= -self.size:
-            new_y = SCREEN_HEIGHT - self.size
+        if new_left > SCREEN_WIDTH and new_left - SCREEN_WIDTH >= self.rect.width:
+            new_x = 0 + self.half_width
+        if new_left <= -self.rect.width:
+            new_x = SCREEN_WIDTH - self.half_width
+        if new_top > SCREEN_HEIGHT and new_top - SCREEN_HEIGHT >= self.rect.height:
+            new_y = 0 + self.half_height
+        if new_top <= -self.rect.height:
+            new_y = SCREEN_HEIGHT - self.half_height
 
         self.pos.x = new_x
         self.pos.y = new_y
 
-        # Sync rect to updated float position
-        self.rect.y = round(self.pos.y)
-        self.rect.x = round(self.pos.x)
+        # Sync image and rect to updated float position
+        self.image = pygame.transform.rotate(self.original_image, -self.heading)
+        self.rect = self.image.get_rect(center=self.pos)
 
-    def draw(self, surface):
-        pygame.draw.polygon(surface, 'white', self.calculate_vertices(self.rect.center))
-        pygame.draw.polygon(surface, 'red', self.calculate_bounding_vertices(), 1)
+    @property
+    def half_width(self):
+        return self.rect.width // 2
+
+    @property
+    def half_height(self):
+        return self.rect.width // 2
