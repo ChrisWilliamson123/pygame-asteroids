@@ -79,9 +79,8 @@ class PlayState(State):
         direction.rotate_ip(random.uniform(-20, 20))  # Add randomness
         speed = random.uniform(100, 300)
         velocity = direction * speed
-        print(x, y)
-        choice = random.choice([AsteroidSpriteName.LARGE_1, AsteroidSpriteName.LARGE_2, AsteroidSpriteName.LARGE_3])
-        return Asteroid(self.sprite_surfaces[choice], x, y, velocity)
+        asteroid_type = random.choice([AsteroidSpriteName.LARGE_1, AsteroidSpriteName.LARGE_2, AsteroidSpriteName.LARGE_3])
+        return Asteroid(self.sprite_surfaces[asteroid_type], x, y, velocity)
 
     def reset(self):
         self.time_since_last_asteroid = 0
