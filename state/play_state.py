@@ -1,3 +1,4 @@
+import math
 import random
 import pygame
 
@@ -66,6 +67,9 @@ class PlayState(State):
                 continuing_velocity = angle_to_vector(self.ship.heading, 500)
                 self.bullets_group.add(Bullet(self.sprite_surfaces[AsteroidSpriteName.BULLET], new_x, new_y, continuing_velocity, self.bullets_group))
                 self.time_since_last_bullet = 0
+        else:
+            # Resetting allows user to fire at will if tapping
+            self.time_since_last_bullet = float(math.inf)
 
         # Move asteroids
         for asteroid in self.asteroids_group:
