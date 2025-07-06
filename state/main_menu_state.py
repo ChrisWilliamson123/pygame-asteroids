@@ -10,7 +10,7 @@ class MainMenuState(State):
         super().__init__(game_manager)
 
         menu_entries = [
-            MenuEntry(lambda: 'Play', [MenuEntryAction(pygame.K_RETURN, lambda: self.game_manager.change_state(StateType.PLAY))]),
+            MenuEntry(lambda: 'Press RETURN to play', [MenuEntryAction(pygame.K_RETURN, lambda: self.game_manager.change_state(StateType.PLAY))]),
             # MenuEntry(lambda: 'Settings', [MenuEntryAction(pygame.K_RETURN, lambda: self.game_manager.change_state(StateType.SETTINGS))]),
         ]
         menu = Menu('Asteroids', menu_entries)

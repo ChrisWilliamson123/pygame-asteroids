@@ -8,13 +8,15 @@ import pygame
 class Ship(pygame.sprite.Sprite):
     def __init__(self, image, center_x, center_y):
         super().__init__()
+
         self.original_image = image  # Unrotated source image
         self.image = image
-        self.heading = 0
-        # self.size = (image.get_width(), image.get_height())
+
         self.pos = pygame.Vector2(center_x, center_y)
         self.rect = self.image.get_rect(center=self.pos)
+        self.heading = 0
         self.rotation_speed = 150
+        self.speed = 300
     
     def rotate(self, direction, dt):
         self.heading += direction * self.rotation_speed * dt
@@ -24,8 +26,7 @@ class Ship(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.pos)
 
     def thrust(self, dt):
-        speed = 200
-        vector = angle_to_vector(self.heading, speed)
+        vector = angle_to_vector(self.heading, self.speed)
         new_x = (self.pos.x + (vector.x * dt))
         new_left = new_x - self.half_width
         new_y = (self.pos.y + (vector.y * dt))

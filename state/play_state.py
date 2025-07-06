@@ -59,7 +59,7 @@ class PlayState(State):
     def spawn_asteroid(self):
         edge = random.choice(['top', 'bottom', 'left', 'right'])
 
-        x, y = 0
+        x, y = (0, 0)
         if edge == 'top':
             x = random.uniform(0, SCREEN_WIDTH)
             y = -50

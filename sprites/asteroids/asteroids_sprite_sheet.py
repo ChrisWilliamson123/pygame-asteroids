@@ -1,7 +1,7 @@
 from gameutils.sprites.sprite import Sprite
 from gameutils.sprites.sprite_sheet import SpriteSheet
 
-from asteroid_sprite_name import AsteroidSpriteName
+from sprites.asteroids.asteroid_sprite_name import AsteroidSpriteName
 
 class AsteroidsSpriteSheet(SpriteSheet):
     def __init__(self):
