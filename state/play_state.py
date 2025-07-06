@@ -85,7 +85,10 @@ class PlayState(State):
         speed = random.uniform(100, 300)
         velocity = direction * speed
         asteroid_type = random.choice([AsteroidSpriteName.LARGE_1, AsteroidSpriteName.LARGE_2, AsteroidSpriteName.LARGE_3])
-        return Asteroid(self.sprite_surfaces[asteroid_type], x, y, velocity)
+        asteroid_surface = self.sprite_surfaces[asteroid_type]
+        size = random.randint(125, 200)
+        resized = pygame.transform.smoothscale(asteroid_surface, (size, size))  # width, height in pixels
+        return Asteroid(resized, x, y, velocity)
 
     def reset(self):
         self.time_since_last_asteroid = 0

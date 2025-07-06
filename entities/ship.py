@@ -16,7 +16,7 @@ class Ship(pygame.sprite.Sprite):
         self.pos = pygame.Vector2(center_x, center_y)
         self.rect = self.image.get_rect(center=self.pos)
         self.heading = 0
-        self.rotation_speed = 150
+        self.rotation_speed = 300
         self.speed = 300
         self.thrusting = False
     
